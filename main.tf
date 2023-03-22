@@ -222,7 +222,7 @@ resource "null_resource" "run_ssh_command" {
 
     environment = {
       "bastion_ip" : ibm_is_floating_ip.login_fip.address
-      "key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
+      #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
     }
   }
   depends_on = [ibm_is_instance.login]
