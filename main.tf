@@ -221,9 +221,17 @@ resource "null_resource" "run_ssh_command" {
     command     = "/bin/bash ${path.module}/s.sh"
 
     environment = {
-    "bastion_ip" : ibm_is_floating_ip.login_fip.address
+      "bastion_ip" : ibm_is_floating_ip.login_fip.address
+      "key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
     }
   }
   depends_on = [ibm_is_instance.login]
+}
+#===================================================================================
+resource "null_resource" "checking_ssh_key" {
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = "cat /tmp/.schematics/IBM/tf_data_path/id_rsa"
+  }
 }
 #===================================================================================
