@@ -30,6 +30,48 @@ resource "ibm_is_ssh_key" "jay-sssh-key" {
 }
 
 #===================================================================================
+variable "tf_data_path" {
+  default = "/tmp/.schematics/IBM/tf_data_path"
+}
+
+// resource to check if the tf_data_path exists or not, if not then create the path.
+resource "null_resource" "check_tf_data_existence" {
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    /* Note: Create the directory only if it does not exist. */
+    command = "if [[ ! -d ${var.tf_data_path} ]]; then mkdir -p ${var.tf_data_path}; fi"
+  }
+}
+
+// resource to generate ssh key with terraform.
+resource "tls_private_key" "generate_ssh_key" {
+  algorithm  = "RSA"
+  rsa_bits   = 4096
+  depends_on = [null_resource.check_tf_data_existence]
+}
+
+// resource to write generated ssh-key to a file with 0600 permission
+resource "local_file" "write_ssh_key" {
+  content         = tls_private_key.generate_ssh_key.private_key_pem
+  filename        = format("%s/%s", pathexpand(var.tf_data_path), "id_rsa")
+  file_permission = "0600"
+  depends_on      = [tls_private_key.generate_ssh_key]
+}
+
+# output "private_key_path" {
+#   value      = format("%s/%s", var.tf_data_path, "id_rsa")
+#   depends_on = [local_file.write_ssh_key]
+# }
+
+# output "public_key" {
+#   value = tls_private_key.generate_ssh_key.public_key_openssh
+# }
+
+# output "private_key" {
+#   value = tls_private_key.generate_ssh_key.private_key_pem
+#   sensitive = true
+# }
+#===================================================================================
 resource "ibm_is_security_group" "login_sg" {
   name           = "jay-schematics-check-sg"
   vpc            = "r006-229da5c6-4f1a-44b9-951d-21a8fdb95aa3"
@@ -137,13 +179,19 @@ resource "ibm_is_floating_ip" "login_fip" {
 }
 
 #===================================================================================
+data "template_file" "login_user_data" {
+  template = <<EOF
+#!/usr/bin/env bash
+echo "${tls_private_key.generate_ssh_key.public_key_openssh}" >> ~/.ssh/authorized_keys
+EOF
+}
 resource "ibm_is_instance" "login" {
   name           = "jay-schematics-check"
   image          = "r006-7ca7884c-c797-468e-a565-5789102aedc6"
   profile        = "bx2-2x8"
   zone           = "us-south-3"
   keys           = [ibm_is_ssh_key.jay-sssh-key.id]
-  #user_data      = var.user_data
+  user_data      = data.template_file.login_user_data.rendered
   vpc            = "r006-229da5c6-4f1a-44b9-951d-21a8fdb95aa3"
   resource_group = "2cd68a3483634533b41a8993159c27e8"
 
@@ -154,7 +202,6 @@ resource "ibm_is_instance" "login" {
     security_groups = [ibm_is_security_group.login_sg.id]
   }
 }
-
 #===================================================================================
 output "floating_ip_address" {
   value = ibm_is_floating_ip.login_fip.address
@@ -168,10 +215,11 @@ output "login_id" {
   value = ibm_is_instance.login.id
 }
 #===================================================================================
-resource "null_resource" "cat_json_inventory" {
+resource "null_resource" "run_ssh_command" {
   provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command     = "echo hello"
+    #interpreter = ["/bin/bash", "-c"]
+    command     = "/bin/bash ${path.module}/s.sh"
   }
+  depends_on = [ibm_is_instance.login]
 }
 #===================================================================================
