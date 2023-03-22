@@ -222,18 +222,18 @@ output "login_id" {
 #   }
 # }
 #===================================================================================
-# resource "null_resource" "run_ssh_command" {
-#   provisioner "local-exec" {
-#     #interpreter = ["/bin/bash", "-c"]
-#     command     = "/bin/bash ${path.module}/s.sh"
+resource "null_resource" "run_ssh_from_local" {
+  provisioner "local-exec" {
+    #interpreter = ["/bin/bash", "-c"]
+    command     = "/bin/bash ${path.module}/script.sh"
 
-#     environment = {
-#       "bastion_ip" : ibm_is_floating_ip.login_fip.address
-#       #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
-#     }
-#   }
-#   depends_on = [ibm_is_instance.login]
-# }
+    environment = {
+      "bastion_ip" : ibm_is_floating_ip.login_fip.address
+      #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
+    }
+  }
+  depends_on = [ibm_is_instance.login]
+}
 #===================================================================================
 resource "null_resource" "run_sssh_command" {
   connection {
@@ -255,6 +255,6 @@ resource "null_resource" "run_sssh_command" {
       "/tmp/script.sh",
     ]     
   }
-  depends_on = [ibm_is_instance.login]
+  depends_on = [ibm_is_instance.login, null_resource.run_ssh_from_local]
 }
 #===================================================================================
