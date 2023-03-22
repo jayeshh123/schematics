@@ -219,6 +219,10 @@ resource "null_resource" "run_ssh_command" {
   provisioner "local-exec" {
     #interpreter = ["/bin/bash", "-c"]
     command     = "/bin/bash ${path.module}/s.sh"
+
+    environment = {
+    "bastion_ip" : ibm_is_floating_ip.login_fip.address
+    }
   }
   depends_on = [ibm_is_instance.login]
 }
