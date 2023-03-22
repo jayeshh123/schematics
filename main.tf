@@ -240,7 +240,7 @@ resource "null_resource" "run_sssh_command" {
     type         = "ssh"
     host         = ibm_is_floating_ip.login_fip.address
     user         = "root"
-    private_key  = file("${path.root}/tmp/.schematics/IBM/tf_data_path/id_rsa")
+    private_key  = file(format("%s/%s", var.tf_data_path, "id_rsa"))
     port         = 22
   }
 
