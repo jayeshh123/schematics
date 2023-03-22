@@ -12,7 +12,7 @@ terraform {
 }
 
 variable "api_key"{
-  default = "XO28Jt6j54LonIT2N07ioacbHjgikQ4ArDavNSHhRS5f"
+  default = ""
 }
 
 provider "ibm" {
