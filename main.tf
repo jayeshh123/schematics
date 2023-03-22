@@ -215,23 +215,46 @@ output "login_id" {
   value = ibm_is_instance.login.id
 }
 #===================================================================================
-resource "null_resource" "run_ssh_command" {
-  provisioner "local-exec" {
-    #interpreter = ["/bin/bash", "-c"]
-    command     = "/bin/bash ${path.module}/s.sh"
+# resource "null_resource" "checking_ssh_key" {
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command     = "cat /tmp/.schematics/IBM/tf_data_path/id_rsa"
+#   }
+# }
+#===================================================================================
+# resource "null_resource" "run_ssh_command" {
+#   provisioner "local-exec" {
+#     #interpreter = ["/bin/bash", "-c"]
+#     command     = "/bin/bash ${path.module}/s.sh"
 
-    environment = {
-      "bastion_ip" : ibm_is_floating_ip.login_fip.address
-      #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
-    }
+#     environment = {
+#       "bastion_ip" : ibm_is_floating_ip.login_fip.address
+#       #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
+#     }
+#   }
+#   depends_on = [ibm_is_instance.login]
+# }
+#===================================================================================
+resource "null_resource" "run_sssh_command" {
+  connection {
+    type         = "ssh"
+    host         = ibm_is_floating_ip.login_fip.address
+    user         = "root"
+    private_key  = file("/tmp/.schematics/IBM/tf_data_path/id_rsa")
+    port         = 22
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/s.sh"
+    destination = "/tmp/script.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/script.sh",
+      "/tmp/script.sh",
+    ]     
   }
   depends_on = [ibm_is_instance.login]
-}
-#===================================================================================
-resource "null_resource" "checking_ssh_key" {
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command     = "cat /tmp/.schematics/IBM/tf_data_path/id_rsa"
-  }
 }
 #===================================================================================
