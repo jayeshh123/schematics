@@ -242,7 +242,7 @@ resource "null_resource" "run_command_on_remote" {
       "/tmp/script.sh",
     ]     
   }
-  depends_on = [ibm_is_instance.login]
+  depends_on = [ibm_is_instance.login, ibm_is_instance.target-node]
 }
 #===================================================================================
 resource "null_resource" "run_ssh_from_local" {
@@ -328,5 +328,17 @@ resource "ibm_is_instance" "target-node" {
 
 output "private_ip_targetnode" {
   value = ibm_is_instance.target-node.primary_network_interface[0].primary_ip[0].address
+}
+#===================================================================================
+resource "null_resource" "perform_scale_deployment" {
+  #count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.write_inventory_complete) == true && tobool(var.create_scale_cluster) == true) ? 1 : 0
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = "ansible-playbook -f 32 -i ${path.module}/inventory.ini ${path.module}/playbook.yml"
+  }
+  depends_on = [null_resource.run_ssh_from_local]
+  triggers = {
+    build = timestamp()
+  }
 }
 #===================================================================================
