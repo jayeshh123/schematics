@@ -325,7 +325,6 @@ resource "ibm_is_instance" "target-node" {
     subnet          = "0737-3695813f-6c12-4afb-b419-4c677189a4e9"
     security_groups = [ibm_is_security_group.schematics_sg.id]
   }
-  depends_on = [ibm_is_instance.login]
 }
 
 output "private_ip_targetnode" {
