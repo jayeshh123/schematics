@@ -324,6 +324,7 @@ resource "ibm_is_instance" "target-node" {
     subnet          = "0737-3695813f-6c12-4afb-b419-4c677189a4e9"
     security_groups = [ibm_is_security_group.schematics_sg.id]
   }
+  depends_on = [ibm_is_instance.login]
 }
 
 output "private_ip_targetnode" {
@@ -334,7 +335,7 @@ resource "null_resource" "perform_scale_deployment" {
   #count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.write_inventory_complete) == true && tobool(var.create_scale_cluster) == true) ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "ansible-playbook -f 32 -i ${path.module}/inventory.ini ${path.module}/playbook.yml --private-key /tmp/.schematics/IBM/tf_data_path/id_rsa"
+    command     = "ansible-playbook -f 32 -i ${path.module}/inventory.ini ${path.module}/playbook.yml"
   }
   depends_on = [null_resource.run_ssh_from_local]
   triggers = {
