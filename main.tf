@@ -73,7 +73,7 @@ resource "local_file" "write_ssh_key" {
 # }
 #===================================================================================
 resource "ibm_is_security_group" "login_sg" {
-  name           = "jay-schematics-check-sg"
+  name           = "jay-schematics-login-sg"
   vpc            = "r006-229da5c6-4f1a-44b9-951d-21a8fdb95aa3"
   resource_group = "2cd68a3483634533b41a8993159c27e8"
 }
@@ -138,15 +138,15 @@ output "security_rule_id" {
 }
 
 #===================================================================================
-# resource "ibm_is_security_group_rule" "login_egress_tcp" {
-#   group     = ibm_is_security_group.login_sg.id
-#   direction = "outbound"
-#   remote    = var.remote
-#   tcp {
-#     port_min = 22
-#     port_max = 22
-#   }
-# }
+resource "ibm_is_security_group_rule" "login_egress_tcp" {
+  group     = ibm_is_security_group.login_sg.id
+  direction = "outbound"
+  remote    = ibm_is_security_group.schematics_sg.id
+  tcp {
+    port_min = 22
+    port_max = 22
+  }
+}
 
 resource "ibm_is_security_group_rule" "login_egress_tcp_rhsm" {
   group     = ibm_is_security_group.login_sg.id
@@ -252,9 +252,81 @@ resource "null_resource" "run_ssh_from_local" {
 
     environment = {
       "bastion_ip" : ibm_is_floating_ip.login_fip.address
+      "target_ip"  : ibm_is_instance.target-node.primary_network_interface.0.primary_ip.0.address
       #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
     }
   }
-  depends_on = [ibm_is_instance.login, null_resource.run_command_on_remote]
+  depends_on = [ibm_is_instance.login, null_resource.run_command_on_remote, ibm_is_instance.target-node]
+}
+#===================================================================================
+resource "ibm_is_security_group" "schematics_sg" {
+  name           = "schematics-target-subnet-sg"
+  vpc            = "r006-229da5c6-4f1a-44b9-951d-21a8fdb95aa3"
+  resource_group = "2cd68a3483634533b41a8993159c27e8"
+}
+
+output "sg_id" {
+  value = ibm_is_security_group.schematics_sg.id
+}
+#===================================================================================
+resource "ibm_is_security_group_rule" "ingress_tcp" {
+  group     = ibm_is_security_group.schematics_sg.id
+  direction = "inbound"
+  remote    = ibm_is_security_group.login_sg.id
+
+  tcp {
+    port_min = 22
+    port_max = 22
+  }
+}
+
+resource "ibm_is_security_group_rule" "ingress_icmp" {
+  group     = ibm_is_security_group.schematics_sg.id
+  direction = "inbound"
+  remote    = "0.0.0.0/0"
+  icmp {
+    code = 0
+    type = 8
+  }
+}
+#===================================================================================
+resource "ibm_is_security_group_rule" "ingress_all_local" {
+  group     = ibm_is_security_group.schematics_sg.id
+  direction = "inbound"
+  remote    = ibm_is_security_group.schematics_sg.id
+}
+#===================================================================================
+resource "ibm_is_security_group_rule" "egress_all" {
+  group     = ibm_is_security_group.schematics_sg.id
+  direction = "outbound"
+  remote    = "0.0.0.0/0"
+}
+#===================================================================================
+data "template_file" "target_node_user_data" {
+  template = <<EOF
+#!/usr/bin/env bash
+echo "${tls_private_key.generate_ssh_key.public_key_openssh}" >> ~/.ssh/authorized_keys
+EOF
+}
+resource "ibm_is_instance" "target-node" {
+  name           = "jay-target-node-schematics"
+  image          = "r006-7ca7884c-c797-468e-a565-5789102aedc6"
+  profile        = "bx2-2x8"
+  zone           = "us-south-3"
+  keys           = [ibm_is_ssh_key.jay-sssh-key.id]
+  user_data      = "${data.template_file.target_node_user_data.rendered} ${file("${path.module}/packages.sh")}"
+  vpc            = "r006-229da5c6-4f1a-44b9-951d-21a8fdb95aa3"
+  resource_group = "2cd68a3483634533b41a8993159c27e8"
+
+  # fip will be assinged
+  primary_network_interface {
+    name            = "eth0"
+    subnet          = "0737-3695813f-6c12-4afb-b419-4c677189a4e9"
+    security_groups = [ibm_is_security_group.schematics_sg.id]
+  }
+}
+
+output "private_ip_targetnode" {
+  value = ibm_is_instance.target-node.primary_network_interface[0].primary_ip[0].address
 }
 #===================================================================================
