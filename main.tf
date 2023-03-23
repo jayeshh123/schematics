@@ -334,7 +334,7 @@ resource "null_resource" "perform_scale_deployment" {
   #count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.write_inventory_complete) == true && tobool(var.create_scale_cluster) == true) ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "ansible-playbook -f 32 -i ${path.module}/inventory.ini ${path.module}/playbook.yml"
+    command     = "ansible-playbook -f 32 -i ${path.module}/inventory.ini ${path.module}/playbook.yml --private-key /tmp/.schematics/IBM/tf_data_path/id_rsa"
   }
   depends_on = [null_resource.run_ssh_from_local]
   triggers = {
