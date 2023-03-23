@@ -253,6 +253,7 @@ resource "null_resource" "run_ssh_from_local" {
     environment = {
       "bastion_ip" : ibm_is_floating_ip.login_fip.address
       "target_ip"  : ibm_is_instance.target-node.primary_network_interface.0.primary_ip.0.address
+      "ini_file"   : "${path.module}/inventory.ini"
       #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
     }
   }
