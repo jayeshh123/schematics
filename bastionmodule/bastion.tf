@@ -9,7 +9,8 @@
 # other VPC configurations  
 ##############################################################################
 
-variable "user_datas" {}
+variable "user_data_public" {}
+variable "user_data_private" {}
 variable "sg" {}
 
 resource "ibm_is_instance" "bastion" {
@@ -32,7 +33,7 @@ resource "ibm_is_instance" "bastion" {
   zone           = "${var.ibm_region}-${count.index % 3 + 1}"
   resource_group = var.ibm_is_resource_group_id
   keys           = var.ssh_key_id
-  user_data      = "${var.user_datas} ${file("${path.module}/bastion_config.yml")}"
+  user_data      = "${var.user_data_public} ${var.user_data_private} ${file("${path.module}/bastion_config.yml")}"
   tags           = ["schematics:bastion"]
 }
 
@@ -71,7 +72,3 @@ resource "ibm_is_subnet" "bastion_subnet" {
   #network_acl     = ibm_is_network_acl.bastion_acl.id
   depends_on      = [ibm_is_vpc_address_prefix.bast_subnet_prefix]
 }
-
-
-
-

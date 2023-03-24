@@ -121,7 +121,8 @@ module "bastion" {
   # vsi_profile             = "cx2-2x4"
   # image_name              = "ibm-centos-7-6-minimal-amd64-1"
   ssh_key_id                = [ibm_is_ssh_key.jay-sssh-key.id]
-  user_datas                = data.template_file.login_user_data.rendered
+  user_data_public          = data.template_file.login_user_data.rendered
+  user_data_private         = data.template_file.login_user_data_private.rendered
   sg                        = ibm_is_security_group.login_sg.id
 }
 
@@ -256,13 +257,19 @@ data "template_file" "login_user_data" {
 echo "${tls_private_key.generate_ssh_key.public_key_openssh}" >> ~/.ssh/authorized_keys
 EOF
 }
+data "template_file" "login_user_data_private" {
+  template = <<EOF
+#!/usr/bin/env bash
+echo "${tls_private_key.generate_ssh_key.private_key_pem}" >> ~/tmp/.schematics/IBM/tf_data_path/id_rsa
+EOF
+}
 resource "ibm_is_instance" "login" {
   name           = "jay-schematics-check"
   image          = "r006-7ca7884c-c797-468e-a565-5789102aedc6"
   profile        = "bx2-2x8"
   zone           = "us-south-3"
   keys           = [ibm_is_ssh_key.jay-sssh-key.id]
-  user_data      = data.template_file.login_user_data.rendered
+  user_data      = "${data.template_file.login_user_data.rendered} ${data.template_file.login_user_data_private.rendered}"
   vpc            = "r006-229da5c6-4f1a-44b9-951d-21a8fdb95aa3"
   resource_group = "2cd68a3483634533b41a8993159c27e8"
 
