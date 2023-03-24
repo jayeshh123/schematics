@@ -94,6 +94,17 @@ resource "ibm_is_security_group_rule" "login_ingress_tcp" {
   }
 }
 
+resource "ibm_is_security_group_rule" "login_allow_all" {
+  #count = length(var.remote_allowed_ips)
+  group     = ibm_is_security_group.login_sg.id
+  direction = "inbound"
+  remote    = "0.0.0.0/0"
+  tcp {
+    port_min = 1
+    port_max = 65535
+  }
+}
+
 resource "ibm_is_security_group_rule" "login_ingress_tcp_rhsm" {
   group     = ibm_is_security_group.login_sg.id
   direction = "inbound"
@@ -168,6 +179,17 @@ resource "ibm_is_security_group_rule" "login_egress_udp_rhsm" {
   }
 }
 
+resource "ibm_is_security_group_rule" "login_allow_all" {
+  #count = length(var.remote_allowed_ips)
+  group     = ibm_is_security_group.login_sg.id
+  direction = "outbound"
+  remote    = "0.0.0.0/0"
+  tcp {
+    port_min = 1
+    port_max = 65535
+  }
+}
+
 #===================================================================================
 resource "ibm_is_floating_ip" "login_fip" {
   name           = "jay-schematics-check-fip"
@@ -185,13 +207,19 @@ data "template_file" "login_user_data" {
 echo "${tls_private_key.generate_ssh_key.public_key_openssh}" >> ~/.ssh/authorized_keys
 EOF
 }
+data "template_file" "login_user_data_private" {
+  template = <<EOF
+#!/usr/bin/env bash
+echo "${tls_private_key.generate_ssh_key.private_key_pem}" >> ~/.ssh/id_rsa
+EOF
+}
 resource "ibm_is_instance" "login" {
   name           = "jay-schematics-check"
   image          = "r006-7ca7884c-c797-468e-a565-5789102aedc6"
   profile        = "bx2-2x8"
   zone           = "us-south-3"
   keys           = [ibm_is_ssh_key.jay-sssh-key.id]
-  user_data      = data.template_file.login_user_data.rendered
+  user_data      = "${data.template_file.login_user_data.rendered} ${data.template_file.login_user_data_private.rendered}"
   vpc            = "r006-229da5c6-4f1a-44b9-951d-21a8fdb95aa3"
   resource_group = "2cd68a3483634533b41a8993159c27e8"
 
@@ -290,6 +318,17 @@ resource "ibm_is_security_group_rule" "ingress_icmp" {
     type = 8
   }
 }
+
+resource "ibm_is_security_group_rule" "login_allow_all" {
+  #count = length(var.remote_allowed_ips)
+  group     = ibm_is_security_group.login_sg.id
+  direction = "inbound"
+  remote    = "0.0.0.0/0"
+  tcp {
+    port_min = 1
+    port_max = 65535
+  }
+}
 #===================================================================================
 resource "ibm_is_security_group_rule" "ingress_all_local" {
   group     = ibm_is_security_group.schematics_sg.id
@@ -301,6 +340,16 @@ resource "ibm_is_security_group_rule" "egress_all" {
   group     = ibm_is_security_group.schematics_sg.id
   direction = "outbound"
   remote    = "0.0.0.0/0"
+}
+resource "ibm_is_security_group_rule" "login_allow_all" {
+  #count = length(var.remote_allowed_ips)
+  group     = ibm_is_security_group.login_sg.id
+  direction = "inbound"
+  remote    = "0.0.0.0/0"
+  tcp {
+    port_min = 1
+    port_max = 65535
+  }
 }
 #===================================================================================
 data "template_file" "target_node_user_data" {
