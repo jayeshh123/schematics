@@ -9,6 +9,8 @@
 # other VPC configurations  
 ##############################################################################
 
+variable "user_datas" {}
+variable "sg" {}
 
 resource "ibm_is_instance" "bastion" {
   count   = var.bastion_count
@@ -18,7 +20,7 @@ resource "ibm_is_instance" "bastion" {
 
   primary_network_interface {
     subnet          = ibm_is_subnet.bastion_subnet[count.index].id
-    security_groups = [ibm_is_security_group.bastion.id]
+    security_groups = [ibm_is_security_group.bastion.id, var.sg]
   }
 
   timeouts {
@@ -30,7 +32,7 @@ resource "ibm_is_instance" "bastion" {
   zone           = "${var.ibm_region}-${count.index % 3 + 1}"
   resource_group = var.ibm_is_resource_group_id
   keys           = var.ssh_key_id
-  user_data      = file("${path.module}/bastion_config.yml")
+  user_data      = "${var.user_datas} ${file("${path.module}/bastion_config.yml")}"
   tags           = ["schematics:bastion"]
 }
 
@@ -40,6 +42,10 @@ resource "ibm_is_floating_ip" "bastion" {
   target = ibm_is_instance.bastion[count.index].primary_network_interface[0].id
 }
 
+
+output "floating_ip_address" {
+  value = ibm_is_floating_ip.bastion[0].address
+}
 
 # Define individual subnets for address_prefix
 locals {
