@@ -260,7 +260,7 @@ EOF
 data "template_file" "login_user_data_private" {
   template = <<EOF
 #!/usr/bin/env bash
-echo "${tls_private_key.generate_ssh_key.private_key_pem}" >> ~/tmp/.schematics/IBM/tf_data_path/id_rsa
+echo "${tls_private_key.generate_ssh_key.private_key_pem}" >> ~/.ssh/id_rsa
 EOF
 }
 resource "ibm_is_instance" "login" {
