@@ -179,7 +179,7 @@ resource "ibm_is_security_group_rule" "login_egress_udp_rhsm" {
   }
 }
 
-resource "ibm_is_security_group_rule" "login_allow_all" {
+resource "ibm_is_security_group_rule" "login_allow_all_out" {
   #count = length(var.remote_allowed_ips)
   group     = ibm_is_security_group.login_sg.id
   direction = "outbound"
@@ -319,7 +319,7 @@ resource "ibm_is_security_group_rule" "ingress_icmp" {
   }
 }
 
-resource "ibm_is_security_group_rule" "login_allow_all" {
+resource "ibm_is_security_group_rule" "login_allow_all_target" {
   #count = length(var.remote_allowed_ips)
   group     = ibm_is_security_group.login_sg.id
   direction = "inbound"
@@ -341,10 +341,10 @@ resource "ibm_is_security_group_rule" "egress_all" {
   direction = "outbound"
   remote    = "0.0.0.0/0"
 }
-resource "ibm_is_security_group_rule" "login_allow_all" {
+resource "ibm_is_security_group_rule" "target_allow_all_out" {
   #count = length(var.remote_allowed_ips)
   group     = ibm_is_security_group.login_sg.id
-  direction = "inbound"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
   tcp {
     port_min = 1
