@@ -315,7 +315,7 @@ resource "null_resource" "run_command_on_remote" {
   #     "/tmp/script.sh",
   #   ]     
   # }
-  depends_on = [ibm_is_instance.login, ibm_is_instance.target-node, null_resource.run_ssh_from_local]
+  depends_on = [null_resource.run_ssh_from_local]
   triggers = {
     build = timestamp()
   }
