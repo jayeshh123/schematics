@@ -383,6 +383,7 @@ resource "null_resource" "run_command_on_remote" {
       verbose        = true
       extra_vars = {
         "ansible_python_interpreter" : "auto",
+        "ssh_accesscheck"            : true
       }
     }
   ansible_ssh_settings {
