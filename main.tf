@@ -243,84 +243,6 @@ output "login_id" {
   value = ibm_is_instance.login.id
 }
 #===================================================================================
-# resource "null_resource" "checking_ssh_key" {
-#   provisioner "local-exec" {
-#     interpreter = ["/bin/bash", "-c"]
-#     command     = "cat /tmp/.schematics/IBM/tf_data_path/id_rsa"
-#   }
-# }
-#===================================================================================
-resource "null_resource" "run_ssh_from_local" {
-  provisioner "local-exec" {
-    #interpreter = ["/bin/bash", "-c"]
-    command     = "/bin/bash ${path.module}/script.sh"
-
-    environment = {
-      "bastion_ip" : ibm_is_floating_ip.login_fip.address
-      "target_ip"  : ibm_is_instance.target-node.primary_network_interface.0.primary_ip.0.address
-      "ini_file"   : "${path.module}/inventory.ini"
-      #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
-    }
-  }
-  depends_on = [ibm_is_instance.login, ibm_is_instance.target-node]
-}
-#===================================================================================
-resource "null_resource" "run_command_on_remote" {
-  # connection {
-  #   type                = "ssh"
-  #   host                = ibm_is_instance.target-node.primary_network_interface[0].primary_ip[0].address
-  #   user                = "root"
-  #   private_key         = file(format("%s/%s", var.tf_data_path, "id_rsa"))
-  #   bastion_host        = ibm_is_floating_ip.login_fip.address
-  #   bastion_user        = "root"
-  #   bastion_private_key = file(format("%s/%s", var.tf_data_path, "id_rsa"))
-  #   #timeout             = "15m"
-  # }
-  connection {
-    type         = "ssh"
-    host         = ibm_is_floating_ip.login_fip.address
-    user         = "root"
-    private_key  = file(format("%s/%s", var.tf_data_path, "id_rsa"))
-    port         = 22
-  }
-  provisioner "ansible" {
-    plays {
-      playbook {
-        file_path = "${path.module}/playbook.yml"
-      }
-      inventory_file = "${path.module}/inventory.ini"
-      verbose        = true
-      extra_vars = {
-        "ansible_python_interpreter" : "auto",
-      }
-    }
-  ansible_ssh_settings {
-      insecure_no_strict_host_key_checking         = true
-      insecure_bastion_no_strict_host_key_checking = false
-      connect_timeout_seconds                      = 90
-      user_known_hosts_file                        = ""
-      bastion_user_known_hosts_file                = ""
-    }
-  }
-
-
-  # provisioner "file" {
-  #   source      = "${path.module}/s.sh"
-  #   destination = "/tmp/script.sh"
-  # }
-
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "chmod +x /tmp/script.sh",
-  #     "/tmp/script.sh",
-  #   ]     
-  # }
-  depends_on = [null_resource.run_ssh_from_local]
-  triggers = {
-    build = timestamp()
-  }
-}
-#===================================================================================
 resource "ibm_is_security_group" "schematics_sg" {
   name           = "schematics-target-subnet-sg"
   vpc            = "r006-229da5c6-4f1a-44b9-951d-21a8fdb95aa3"
@@ -401,6 +323,89 @@ resource "ibm_is_instance" "target-node" {
 
 output "private_ip_targetnode" {
   value = ibm_is_instance.target-node.primary_network_interface[0].primary_ip[0].address
+}
+#===================================================================================
+resource "time_sleep" "waiter" {
+  create_duration = "30s"
+  depends_on      = [ibm_is_instance.target-node]
+}
+
+# resource "null_resource" "checking_ssh_key" {
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command     = "cat /tmp/.schematics/IBM/tf_data_path/id_rsa"
+#   }
+# }
+#===================================================================================
+resource "null_resource" "run_ssh_from_local" {
+  provisioner "local-exec" {
+    #interpreter = ["/bin/bash", "-c"]
+    command     = "/bin/bash ${path.module}/script.sh"
+
+    environment = {
+      "bastion_ip" : ibm_is_floating_ip.login_fip.address
+      "target_ip"  : ibm_is_instance.target-node.primary_network_interface.0.primary_ip.0.address
+      "ini_file"   : "${path.module}/inventory.ini"
+      #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
+    }
+  }
+  depends_on = [ibm_is_instance.login, ibm_is_instance.target-node, ibm_is_floating_ip.login_fip]
+}
+#===================================================================================
+resource "null_resource" "run_command_on_remote" {
+  # connection {
+  #   type                = "ssh"
+  #   host                = ibm_is_instance.target-node.primary_network_interface[0].primary_ip[0].address
+  #   user                = "root"
+  #   private_key         = file(format("%s/%s", var.tf_data_path, "id_rsa"))
+  #   bastion_host        = ibm_is_floating_ip.login_fip.address
+  #   bastion_user        = "root"
+  #   bastion_private_key = file(format("%s/%s", var.tf_data_path, "id_rsa"))
+  #   #timeout             = "15m"
+  # }
+  connection {
+    type         = "ssh"
+    host         = ibm_is_floating_ip.login_fip.address
+    user         = "root"
+    private_key  = file(format("%s/%s", var.tf_data_path, "id_rsa"))
+    port         = 22
+  }
+  provisioner "ansible" {
+    plays {
+      playbook {
+        file_path = "${path.module}/playbook.yml"
+      }
+      inventory_file = "${path.module}/inventory.ini"
+      verbose        = true
+      extra_vars = {
+        "ansible_python_interpreter" : "auto",
+      }
+    }
+  ansible_ssh_settings {
+      insecure_no_strict_host_key_checking         = true
+      insecure_bastion_no_strict_host_key_checking = false
+      connect_timeout_seconds                      = 90
+      user_known_hosts_file                        = ""
+      bastion_user_known_hosts_file                = ""
+    }
+  }
+
+
+  # provisioner "file" {
+  #   source      = "${path.module}/s.sh"
+  #   destination = "/tmp/script.sh"
+  # }
+
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "chmod +x /tmp/script.sh",
+  #     "/tmp/script.sh",
+  #   ]     
+  # }
+  depends_on = [null_resource.run_ssh_from_local]
+  triggers = {
+    build = timestamp()
+  }
 }
 #===================================================================================
 # resource "null_resource" "perform_scale_deployment" {

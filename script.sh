@@ -2,8 +2,8 @@
 
 if [ -e ${ini_file} ]
 then
-    rm ${ini_file}
-    echo "${ini_file} file deleted"
+    > ${ini_file}
+    echo "${ini_file} file cleaned"
 fi
 echo "[scale_nodes]" >> inventory.ini
 echo "${target_ip}" >> inventory.ini
