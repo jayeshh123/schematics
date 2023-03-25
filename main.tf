@@ -411,13 +411,13 @@ locals {
 # }
 #===================================================================================
 resource "null_resource" "perform_scale_deployment" {
-  connection {
-    type         = "ssh"
-    host         = ibm_is_floating_ip.login_fip.address
-    user         = "root"
-    private_key  = file(format("%s/%s", var.tf_data_path, "id_rsa"))
-    port         = 22
-  }
+  # connection {
+  #   type         = "ssh"
+  #   host         = ibm_is_floating_ip.login_fip.address
+  #   user         = "root"
+  #   private_key  = file(format("%s/%s", var.tf_data_path, "id_rsa"))
+  #   port         = 22
+  # }
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command     = "ansible-playbook -f 32 -i ${local.compute_inventory_path} ${path.module}/playbook.yml"
