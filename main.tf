@@ -12,7 +12,7 @@ terraform {
 }
 
 variable "api_key"{
-  default = ""
+  default = "XO28Jt6j54LonIT2N07ioacbHjgikQ4ArDavNSHhRS5f"
 }
 
 provider "ibm" {
@@ -21,7 +21,7 @@ provider "ibm" {
 }
 
 variable "pub_key"{
-  default = ""
+  default = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDUmcGst1I5j165HAHgJ6kEGevbz6ux4RWXj1JjBmU9BU2a6MX9LtwcuSiU5XpflIx2zRD3PyBfTNcQEWgwnff1mah9LmwkwOKTXJDJgZuQWcs6Il/mqlWVzp0ctaRrlAXWbp4nA/UvX8Ty9mx4LjsZ0NdCQp17kcjxruLlUfvX3mbUFldAUoOq0LrZDEY7xtgUNF5tyI5GL9oth2PSbUnXdvFdkRYQjd43BoXiq9V2gXAlPGwdtkmUP1mSXFxwQ8MBbPTMuLIqj3YTzKfFo+sx/3qa+ME6Ob5PXCxiCErvawaZNGqbs6oBPCO2SGR1Ol1Zr+Yct30TGVMYknJtM+RkkM2xKwBZgjU+R8f3Cn1DBhPpBeG6r7wj5nuOhFxJn4wbbDij3fzlqGi9ZZ8yXomtTcmRuM2EBcLfB/x6OIIjgKcusO7L+7g6w6+H+1fL4XXtrVMReAT9tUM7U32N1CI1euPr1ni4TFWpOMVWnEoqJIfd1z+TUgy605x2Y2t9SKE= root@jay-node-000"
 }
 
 resource "ibm_is_ssh_key" "jay-sssh-key" {
@@ -251,6 +251,16 @@ output "login_id" {
 # }
 #===================================================================================
 resource "null_resource" "run_command_on_remote" {
+  # connection {
+  #   type                = "ssh"
+  #   host                = ibm_is_instance.target-node.primary_network_interface[0].primary_ip[0].address
+  #   user                = "root"
+  #   private_key         = file(format("%s/%s", var.tf_data_path, "id_rsa"))
+  #   bastion_host        = ibm_is_floating_ip.login_fip.address
+  #   bastion_user        = "root"
+  #   bastion_private_key = file(format("%s/%s", var.tf_data_path, "id_rsa"))
+  #   #timeout             = "15m"
+  # }
   connection {
     type         = "ssh"
     host         = ibm_is_floating_ip.login_fip.address
@@ -258,19 +268,42 @@ resource "null_resource" "run_command_on_remote" {
     private_key  = file(format("%s/%s", var.tf_data_path, "id_rsa"))
     port         = 22
   }
-
-  provisioner "file" {
-    source      = "${path.module}/s.sh"
-    destination = "/tmp/script.sh"
+  provisioner "ansible" {
+    plays {
+      playbook {
+        file_path = "./playbook.yml"
+      }
+      inventory_file = "./inventory.ini"
+      verbose        = true
+      extra_vars = {
+        "ansible_python_interpreter" : "auto",
+      }
+    }
+  ansible_ssh_settings {
+      insecure_no_strict_host_key_checking         = true
+      insecure_bastion_no_strict_host_key_checking = false
+      connect_timeout_seconds                      = 90
+      user_known_hosts_file                        = ""
+      bastion_user_known_hosts_file                = ""
+    }
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/script.sh",
-      "/tmp/script.sh",
-    ]     
-  }
+
+  # provisioner "file" {
+  #   source      = "${path.module}/s.sh"
+  #   destination = "/tmp/script.sh"
+  # }
+
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "chmod +x /tmp/script.sh",
+  #     "/tmp/script.sh",
+  #   ]     
+  # }
   depends_on = [ibm_is_instance.login, ibm_is_instance.target-node]
+  triggers = {
+    build = timestamp()
+  }
 }
 #===================================================================================
 resource "null_resource" "run_ssh_from_local" {
@@ -370,14 +403,14 @@ output "private_ip_targetnode" {
   value = ibm_is_instance.target-node.primary_network_interface[0].primary_ip[0].address
 }
 #===================================================================================
-resource "null_resource" "perform_scale_deployment" {
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command     = "ansible-playbook -f 32 -i ${path.module}/inventory.ini ${path.module}/playbook.yml"
-  }
-  depends_on = [null_resource.run_ssh_from_local]
-  triggers = {
-    build = timestamp()
-  }
-}
+# resource "null_resource" "perform_scale_deployment" {
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command     = "ansible-playbook -f 32 -i ${path.module}/inventory.ini ${path.module}/playbook.yml"
+#   }
+#   depends_on = [null_resource.run_ssh_from_local, null_resource.run_command_on_remote]
+#   triggers = {
+#     build = timestamp()
+#   }
+# }
 #===================================================================================
