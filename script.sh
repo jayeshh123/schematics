@@ -5,13 +5,13 @@ then
     > ${ini_file}
     echo "${ini_file} file cleaned"
 fi
-echo "[scale_nodes]" >> inventory.ini
-echo "${target_ip}" >> inventory.ini
+echo "[scale_nodes]" >> ${ini_file}
+echo "${target_ip}" >> ${ini_file}
 
 proxy_command="ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand=\"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p root@${bastion_ip} -i /tmp/.schematics/IBM/tf_data_path/id_rsa\"'"
 
-echo "[scale_nodes:vars]" >> inventory.ini
-echo ${proxy_command} >> inventory.ini
+echo "[scale_nodes:vars]" >> ${ini_file}
+echo ${proxy_command} >> ${ini_file}
 
 echo "inventory file writte"
 
