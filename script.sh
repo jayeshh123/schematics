@@ -15,6 +15,10 @@ echo ${proxy_command} >> ${ini_file}
 
 echo "inventory file writte"
 
+cd /etc/ssh 
+ls
+cat sshd_config
+
 # ssh -o StrictHostKeyChecking=no -tt -i /tmp/.schematics/IBM/tf_data_path/id_rsa -J root@${bastion_ip} root@${target_ip} /bin/bash <<'EOT'
 # echo "These commands will be run on: $( uname -a )"
 # echo "They are executed by: $( whoami )"

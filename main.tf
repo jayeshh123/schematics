@@ -330,13 +330,13 @@ resource "time_sleep" "waiter" {
   depends_on      = [ibm_is_instance.target-node, ibm_is_instance.login, ibm_is_floating_ip.login_fip]
 }
 #===================================================================================
-resource "null_resource" "cat_sshd_config" {
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command     = "cat /etc/ssh/sshd_config"
-  }
-  depends_on = [time_sleep.waiter]
-}
+# resource "null_resource" "cat_sshd_config" {
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command     = "cat /etc/ssh/sshd_config"
+#   }
+#   depends_on = [time_sleep.waiter]
+# }
 #===================================================================================
 resource "null_resource" "run_ssh_from_local" {
   provisioner "local-exec" {
