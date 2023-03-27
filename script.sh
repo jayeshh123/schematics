@@ -17,6 +17,9 @@ echo "inventory file writte"
 echo "################################################"
 ls /etc/ssh 
 echo "################################################"
+ls /etc/ssh/ssh_config
+ls /etc/ssh/ssh_config.d
+echo "################################################"
 cat /etc/ssh/ssh_config
 echo "################################################"
 # ssh -o StrictHostKeyChecking=no -tt -i /tmp/.schematics/IBM/tf_data_path/id_rsa -J root@${bastion_ip} root@${target_ip} /bin/bash <<'EOT'
