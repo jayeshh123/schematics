@@ -350,7 +350,7 @@ resource "null_resource" "run_ssh_from_local" {
       #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
     }
   }
-  depends_on = [null_resource.cat_sshd_config]
+  depends_on = [time_sleep.waiter]
 }
 #===================================================================================
 locals {
