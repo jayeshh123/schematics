@@ -338,7 +338,7 @@ resource "time_sleep" "waiter" {
 #   depends_on = [time_sleep.waiter]
 # }
 #===================================================================================
-resource "null_resource" "run_ssh_from_local" {
+resource "null_resource" "run_sssh_from_local" {
   provisioner "local-exec" {
     #interpreter = ["/bin/bash", "-c"]
     command     = "/bin/bash ${path.module}/script.sh"
@@ -406,7 +406,7 @@ resource "null_resource" "run_command_on_remote" {
   #     "/tmp/script.sh",
   #   ]     
   # }
-  depends_on = [null_resource.run_ssh_from_local]
+  depends_on = [null_resource.run_sssh_from_local]
   triggers = {
     build = timestamp()
   }
@@ -424,7 +424,7 @@ resource "null_resource" "perform_scale_deployment" {
     interpreter = ["/bin/bash", "-c"]
     command     = "ansible-playbook -f 32 -i ${local.compute_inventory_path} ${path.module}/playbook.yml"
   }
-  depends_on = [null_resource.run_ssh_from_local]# null_resource.run_command_on_remote]
+  depends_on = [null_resource.run_sssh_from_local]# null_resource.run_command_on_remote]
   triggers = {
     build = timestamp()
   }
