@@ -329,13 +329,14 @@ resource "time_sleep" "waiter" {
   create_duration = "30s"
   depends_on      = [ibm_is_instance.target-node, ibm_is_instance.login, ibm_is_floating_ip.login_fip]
 }
-
-# resource "null_resource" "checking_ssh_key" {
-#   provisioner "local-exec" {
-#     interpreter = ["/bin/bash", "-c"]
-#     command     = "cat /tmp/.schematics/IBM/tf_data_path/id_rsa"
-#   }
-# }
+#===================================================================================
+resource "null_resource" "cat_sshd_config" {
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = "cat /etc/ssh/sshd_config"
+  }
+  depends_on = [time_sleep.waiter]
+}
 #===================================================================================
 resource "null_resource" "run_ssh_from_local" {
   provisioner "local-exec" {
@@ -349,7 +350,7 @@ resource "null_resource" "run_ssh_from_local" {
       #"key_path"   : format("%s/%s", var.tf_data_path, "id_rsa")
     }
   }
-  depends_on = [time_sleep.waiter]
+  depends_on = [null_resource.cat_sshd_config]
 }
 #===================================================================================
 locals {
