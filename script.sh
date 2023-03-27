@@ -17,7 +17,6 @@ echo "inventory file writte"
 echo "################################################"
 ls /etc/ssh 
 echo "################################################"
-ls /etc/ssh/ssh_config
 ls /etc/ssh/ssh_config.d
 echo "################################################"
 cat /etc/ssh/ssh_config
