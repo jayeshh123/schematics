@@ -21,7 +21,7 @@ ls /etc/ssh/ssh_config.d
 echo "################################################"
 cat /etc/ssh/ssh_config
 echo "################################################"
-echo "PasswordAuthentication no" >> /etc/ssh/ssh_config
+sudo echo "PasswordAuthentication no" >> /etc/ssh/ssh_config
 
 # ssh -o StrictHostKeyChecking=no -tt -i /tmp/.schematics/IBM/tf_data_path/id_rsa -J root@${bastion_ip} root@${target_ip} /bin/bash <<'EOT'
 # echo "These commands will be run on: $( uname -a )"
