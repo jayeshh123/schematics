@@ -14,11 +14,11 @@ echo "[scale_nodes:vars]" >> ${ini_file}
 echo ${proxy_command} >> ${ini_file}
 
 echo "inventory file writte"
-
-cd /etc/ssh 
-ls
-cat sshd_config
-
+echo "################################################"
+ls /etc/ssh 
+echo "################################################"
+cat ssh_config
+echo "################################################"
 # ssh -o StrictHostKeyChecking=no -tt -i /tmp/.schematics/IBM/tf_data_path/id_rsa -J root@${bastion_ip} root@${target_ip} /bin/bash <<'EOT'
 # echo "These commands will be run on: $( uname -a )"
 # echo "They are executed by: $( whoami )"
