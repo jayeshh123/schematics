@@ -69,7 +69,7 @@ resource "tls_private_key" "generate_ssh_key" {
 resource "local_file" "write_ssh_key" {
   content         = tls_private_key.generate_ssh_key.private_key_pem
   filename        = format("%s/%s", pathexpand(var.tf_data_path), "id_rsa")
-  file_permission = "0600"
+  file_permission = "0400"
   depends_on      = [tls_private_key.generate_ssh_key]
 }
 
