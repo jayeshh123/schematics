@@ -4,13 +4,17 @@
   gather_facts: false
   connection: local
   vars:
-    myfile: /root/.ssh/authorized_keys
-  tasks:
+    myfile: /root
     # - action: pin
-  - name: create empty file
-    file:
-      path: /root/touch_file
-      state: touch
+  tasks:
+  - command: "ls {{directory}}"
+    register: dir_out
+  - debug: var={{item}}
+    with_items: dir_out.stdout_lines
+  # - name: create empty file
+  #   file:
+  #     path: /root/touch_file
+  #     state: touch
   # - name: check if a file exists
   #   ansible.builtin.stat:
   #     path: "{{ myfile }}"
