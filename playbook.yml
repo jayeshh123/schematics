@@ -3,6 +3,7 @@
   any_errors_fatal: true
   gather_facts: false
   connection: local
+  user: root
   vars:
     myfile: /root
     # - action: pin
