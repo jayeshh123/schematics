@@ -3,9 +3,9 @@
   any_errors_fatal: true
   gather_facts: false
   connection: local
-  user: root
+  user: appuser
   vars:
-    myfile: /root
+    myfile: /root/.ssh
     # - action: pin
   tasks:
   - command: "ls {{myfile}}"
