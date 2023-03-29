@@ -7,7 +7,7 @@
     myfile: /root
     # - action: pin
   tasks:
-  - command: "ls {{directory}}"
+  - command: "ls {{myfile}}"
     register: dir_out
   - debug: var={{item}}
     with_items: dir_out.stdout_lines
