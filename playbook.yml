@@ -2,8 +2,7 @@
   hosts: scale_nodes
   any_errors_fatal: true
   gather_facts: false
-  connection: local
-  user: appuser
+  #connection: local
   vars:
     myfile: /root/.ssh
     # - action: pin

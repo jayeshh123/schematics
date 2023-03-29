@@ -6,15 +6,14 @@ then
     echo "${ini_file} file cleaned"
 fi
 echo "[scale_nodes]" >> ${ini_file}
-echo "${bastion_ip}" >> ${ini_file}
+echo "${target_ip}" >> ${ini_file}
 
-#proxy_command="ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand=\"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p root@${bastion_ip} -i /tmp/.schematics/IBM/tf_data_path/id_rsa\"'"
+proxy_command="ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand=\"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p root@${bastion_ip} -i /tmp/.schematics/IBM/tf_data_path/id_rsa\"'"
 
-#echo "[scale_nodes:vars]" >> ${ini_file}
-#echo "remote_tmp = /tmp/ansible-$USER"
-#echo ${proxy_command} >> ${ini_file}
+echo "[scale_nodes:vars]" >> ${ini_file}
+echo ${proxy_command} >> ${ini_file}
 
-echo "inventory file written"
+echo "inventory file writte"
 echo "################################################"
 ls /etc/ssh 
 echo "################################################"
@@ -23,6 +22,7 @@ echo "################################################"
 cat /etc/ssh/ssh_config
 echo "################################################"
 whoami
+
 #sudo echo "PasswordAuthentication no" >> /etc/ssh/ssh_config
 
 #sudo sed -i -E 's/#?PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
