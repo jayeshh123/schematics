@@ -357,60 +357,60 @@ locals {
   compute_inventory_path   = format("%s/%s", var.tf_data_path, "inventory.ini")
   #compute_playbook_path    = format("%s/%s", var.tf_data_path, "playbook.yml")
   }
-resource "null_resource" "run_command_on_remote" {
-  # connection {
-  #   type                = "ssh"
-  #   host                = ibm_is_instance.target-node.primary_network_interface[0].primary_ip[0].address
-  #   user                = "root"
-  #   private_key         = file(format("%s/%s", var.tf_data_path, "id_rsa"))
-  #   bastion_host        = ibm_is_floating_ip.login_fip.address
-  #   bastion_user        = "root"
-  #   bastion_private_key = file(format("%s/%s", var.tf_data_path, "id_rsa"))
-  #   #timeout             = "15m"
-  # }
-  connection {
-    type         = "ssh"
-    host         = ibm_is_floating_ip.login_fip.address
-    user         = "root"
-    private_key  = file(format("%s/%s", var.tf_data_path, "id_rsa"))
-    port         = 22
-  }
-  provisioner "ansible" {
-    plays {
-      playbook {
-        file_path = "${path.module}/playbook.yml"
-      }
-      inventory_file = local.compute_inventory_path
-      verbose        = true
-      extra_vars = {
-        "ansible_python_interpreter" : "auto",
-        "ssh_accesscheck"            : true
-      }
-    }
-  ansible_ssh_settings {
-      insecure_no_strict_host_key_checking         = true
-      insecure_bastion_no_strict_host_key_checking = false
-      connect_timeout_seconds                      = 90
-      user_known_hosts_file                        = ""
-      bastion_user_known_hosts_file                = ""
-    }
-  }
-  # provisioner "file" {
-  #   source      = "${path.module}/s.sh"
-  #   destination = "/tmp/script.sh"
-  # }
+# resource "null_resource" "run_command_on_remote" {
+#   # connection {
+#   #   type                = "ssh"
+#   #   host                = ibm_is_instance.target-node.primary_network_interface[0].primary_ip[0].address
+#   #   user                = "root"
+#   #   private_key         = file(format("%s/%s", var.tf_data_path, "id_rsa"))
+#   #   bastion_host        = ibm_is_floating_ip.login_fip.address
+#   #   bastion_user        = "root"
+#   #   bastion_private_key = file(format("%s/%s", var.tf_data_path, "id_rsa"))
+#   #   #timeout             = "15m"
+#   # }
+#   connection {
+#     type         = "ssh"
+#     host         = ibm_is_floating_ip.login_fip.address
+#     user         = "root"
+#     private_key  = file(format("%s/%s", var.tf_data_path, "id_rsa"))
+#     port         = 22
+#   }
+#   provisioner "ansible" {
+#     plays {
+#       playbook {
+#         file_path = "${path.module}/playbook.yml"
+#       }
+#       inventory_file = local.compute_inventory_path
+#       verbose        = true
+#       extra_vars = {
+#         "ansible_python_interpreter" : "auto",
+#         "ssh_accesscheck"            : true
+#       }
+#     }
+#   ansible_ssh_settings {
+#       insecure_no_strict_host_key_checking         = true
+#       insecure_bastion_no_strict_host_key_checking = false
+#       connect_timeout_seconds                      = 90
+#       user_known_hosts_file                        = ""
+#       bastion_user_known_hosts_file                = ""
+#     }
+#   }
+#   # provisioner "file" {
+#   #   source      = "${path.module}/s.sh"
+#   #   destination = "/tmp/script.sh"
+#   # }
 
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "chmod +x /tmp/script.sh",
-  #     "/tmp/script.sh",
-  #   ]     
-  # }
-  depends_on = [null_resource.run_ssh_from_local]
-  triggers = {
-    build = timestamp()
-  }
-}
+#   # provisioner "remote-exec" {
+#   #   inline = [
+#   #     "chmod +x /tmp/script.sh",
+#   #     "/tmp/script.sh",
+#   #   ]     
+#   # }
+#   depends_on = [null_resource.run_ssh_from_local]
+#   triggers = {
+#     build = timestamp()
+#   }
+# }
 # #===================================================================================
 resource "null_resource" "perform_scale_deployment" {
   # connection {

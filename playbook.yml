@@ -4,7 +4,7 @@
   gather_facts: false
   connection: local
   become: yes
-  become_user: root
+  become_user: appuser
   become_method: su
   vars:
     myfile: /root/.ssh/authorized_keys

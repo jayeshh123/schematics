@@ -22,9 +22,6 @@ echo "################################################"
 cat /etc/ssh/ssh_config
 echo "################################################"
 whoami
-echo "$USER"
-echo "#######################################"
-lslogins
 #sudo echo "PasswordAuthentication no" >> /etc/ssh/ssh_config
 
 #sudo sed -i -E 's/#?PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
