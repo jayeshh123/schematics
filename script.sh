@@ -22,6 +22,9 @@ echo "################################################"
 cat /etc/ssh/ssh_config
 echo "################################################"
 whoami
+telnet target_ip 22
+
+
 
 #sudo echo "PasswordAuthentication no" >> /etc/ssh/ssh_config
 

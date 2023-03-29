@@ -3,18 +3,30 @@
   any_errors_fatal: true
   gather_facts: false
   #connection: local
-  # vars:
-  #   myfile: /root/.ssh
-    # - action: pin
+  vars:
+    myfile: /root/.ssh
+    #- action: pin
   tasks:
-  # - command: "ls {{myfile}}"
-  #   register: dir_out
-  # - debug: var={{item}}
-  #   with_items: dir_out.stdout_lines
-  # - name: create empty file
-  #   file:
-  #     path: /root/touch_file
-  #     state: touch
+  - command: "ls {{myfile}}"
+    register: dir_out
+  - debug: var={{item}}
+    with_items: dir_out.stdout_lines
+  - name: create empty file
+    file:
+      path: /root/touch_file
+      state: touch
+
+
+
+
+
+
+
+
+
+
+
+      
   # - name: check if a file exists
   #   ansible.builtin.stat:
   #     path: "{{ myfile }}"
@@ -29,21 +41,21 @@
   #   when: not file_data.stat.exists
 
 
-  - name: Check passwordless SSH on all scale inventory hosts
-    shell: ssh {{ ansible_ssh_common_args }} -i /tmp/.schematics/IBM/tf_data_path/id_rsa {{ inventory_hostname }} "echo PASSWDLESS_SSH_ENABLED"
-    register: result
-    until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
-    # retries: 60
-    # delay: 10
-  - debug:
-      msg: "{{ result }}"
-      #until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
-      #retries: 30
-      #delay: 10
-  # - name: Multi Install
-  #   become: true
-  #   become_user: root
-  #   yum:
-  #     name: ['git', 'wget']
-  #     state: present
-  #     update_cache: yes
+  # - name: Check passwordless SSH on all scale inventory hosts
+  #   shell: ssh {{ ansible_ssh_common_args }} -i /tmp/.schematics/IBM/tf_data_path/id_rsa {{ inventory_hostname }} "echo PASSWDLESS_SSH_ENABLED"
+  #   register: result
+  #   until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
+  #   # retries: 60
+  #   # delay: 10
+  # - debug:
+  #     msg: "{{ result }}"
+  #     #until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
+  #     #retries: 30
+  #     #delay: 10
+  # # - name: Multi Install
+  # #   become: true
+  # #   become_user: root
+  # #   yum:
+  # #     name: ['git', 'wget']
+  # #     state: present
+  # #     update_cache: yes
