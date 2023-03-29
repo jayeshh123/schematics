@@ -4,21 +4,50 @@
   gather_facts: false
   connection: local
   vars:
-    myfile: /etc/ssh
-    #- action: pin
+    myfile: /root/.ssh
+    # - action: pin
   tasks:
-  - name: check if a file exists
-    ansible.builtin.stat:
-      path: "{{ myfile }}"
-    register: file_data
-  - name: report file exists
-    ansible.builtin.debug:
-      msg: "The file {{ myfile }} exist"
-    when: file_data.stat.exists
-  - name: report file not exists
-    ansible.builtin.debug:
-      msg: "The file {{ myfile }} doesn't exist"
-    when: not file_data.stat.exists
+  - command: "ls {{myfile}}"
+    register: dir_out
+    until: "dir_out is not failed"
+    retries: 3
+    delay: 3
+  - debug: var={{item}}
+    with_items: dir_out.stdout_lines
+  - name: create empty file
+    file:
+      path: /root/jay.txt
+      state: touch
+
+
+
+
+
+
+
+
+
+# - name: Check passwordless SSH connection is setup
+#   hosts: scale_nodes
+#   any_errors_fatal: true
+#   gather_facts: false
+#   connection: local
+#   vars:
+#     myfile: /etc/ssh
+#     #- action: pin
+#   tasks:
+#   - name: check if a file exists
+#     ansible.builtin.stat:
+#       path: "{{ myfile }}"
+#     register: file_data
+#   - name: report file exists
+#     ansible.builtin.debug:
+#       msg: "The file {{ myfile }} exist"
+#     when: file_data.stat.exists
+#   - name: report file not exists
+#     ansible.builtin.debug:
+#       msg: "The file {{ myfile }} doesn't exist"
+#     when: not file_data.stat.exists
 
 
   # - command: "ls {{myfile}}"
