@@ -2,19 +2,15 @@
   hosts: scale_nodes
   any_errors_fatal: true
   gather_facts: false
-  #connection: local
+  connection: local
   vars:
-    myfile: /root/.ssh
+    myfile: /etc/ssh
     #- action: pin
   tasks:
   - command: "ls {{myfile}}"
     register: dir_out
   - debug: var={{item}}
     with_items: dir_out.stdout_lines
-  - name: create empty file
-    file:
-      path: /root/touch_file
-      state: touch
 
 
 
@@ -26,7 +22,6 @@
 
 
 
-      
   # - name: check if a file exists
   #   ansible.builtin.stat:
   #     path: "{{ myfile }}"
