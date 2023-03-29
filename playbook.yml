@@ -7,18 +7,22 @@
     myfile: /root/.ssh/authorized_keys
   tasks:
     # - action: pin
-  - name: check if a file exists
-    ansible.builtin.stat:
-      path: "{{ myfile }}"
-    register: file_data
-  - name: report file exists
-    ansible.builtin.debug:
-      msg: "The file {{ myfile }} exist"
-    when: file_data.stat.exists
-  - name: report file not exists
-    ansible.builtin.debug:
-      msg: "The file {{ myfile }} doesn't exist"
-    when: not file_data.stat.exists
+  - name: create empty file
+    file:
+      path: /root/touch_file
+      state: touch
+  # - name: check if a file exists
+  #   ansible.builtin.stat:
+  #     path: "{{ myfile }}"
+  #   register: file_data
+  # - name: report file exists
+  #   ansible.builtin.debug:
+  #     msg: "The file {{ myfile }} exist"
+  #   when: file_data.stat.exists
+  # - name: report file not exists
+  #   ansible.builtin.debug:
+  #     msg: "The file {{ myfile }} doesn't exist"
+  #   when: not file_data.stat.exists
 
 
   # - name: Check passwordless SSH on all scale inventory hosts

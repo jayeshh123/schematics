@@ -422,7 +422,7 @@ resource "null_resource" "perform_scale_deployment" {
   # }
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "ansible-playbook -f 32 -i ${local.compute_inventory_path} ${path.module}/playbook.yml --private-key /tmp/.schematics/IBM/tf_data_path/id_rsa"
+    command     = "ansible-playbook -f 32 -i ${local.compute_inventory_path} ${path.module}/playbook.yml"
   }
   depends_on = [null_resource.run_ssh_from_local]# null_resource.run_command_on_remote]
   triggers = {
