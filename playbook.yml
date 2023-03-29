@@ -4,7 +4,7 @@
   gather_facts: false
   connection: local
   vars:
-    myfile: /root/.ssh
+    myfile: /etc/ssh
     #- action: pin
   tasks:
   - name: check if a file exists
