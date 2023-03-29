@@ -219,7 +219,7 @@ resource "ibm_is_instance" "login" {
   profile        = "bx2-2x8"
   zone           = "us-south-3"
   keys           = [ibm_is_ssh_key.jay-sssh-key.id]
-  user_data      = "${data.template_file.login_user_data.rendered} ${data.template_file.login_user_data_private.rendered}"
+  user_data      = "${data.template_file.login_user_data.rendered} ${data.template_file.login_user_data_private.rendered} ${file("${path.module}/packages.sh")}"
   vpc            = "r006-229da5c6-4f1a-44b9-951d-21a8fdb95aa3"
   resource_group = "2cd68a3483634533b41a8993159c27e8"
 
