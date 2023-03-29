@@ -60,7 +60,7 @@
   #   with_items: dir_out.stdout_lines
 
   - name: Check passwordless SSH on all scale inventory hosts
-    shell: ssh {{ ansible_ssh_common_args }} -i /tmp/.schematics/IBM/tf_data_path/id_rsa {{ inventory_hostname }} "echo PASSWDLESS_SSH_ENABLED"
+    shell: ssh {{ ansible_ssh_common_args }} -o StrictHostKeyChecking=no -i /tmp/.schematics/IBM/tf_data_path/id_rsa {{ inventory_hostname }} "echo PASSWDLESS_SSH_ENABLED"
     register: result
     until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
     # retries: 60
