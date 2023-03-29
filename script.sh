@@ -21,12 +21,16 @@ ls /etc/ssh/ssh_config.d
 echo "################################################"
 cat /etc/ssh/ssh_config
 echo "################################################"
+whoami
+echo "$USER"
+echo "#######################################"
+lslogins
 #sudo echo "PasswordAuthentication no" >> /etc/ssh/ssh_config
 
-sudo sed -i -E 's/#?PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+#sudo sed -i -E 's/#?PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
 #sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
-sudo service sshd restart
+#sudo service sshd restart
 
 # ssh -o StrictHostKeyChecking=no -tt -i /tmp/.schematics/IBM/tf_data_path/id_rsa -J root@${bastion_ip} root@${target_ip} /bin/bash <<'EOT'
 # echo "These commands will be run on: $( uname -a )"

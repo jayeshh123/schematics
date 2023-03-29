@@ -3,23 +3,42 @@
   any_errors_fatal: true
   gather_facts: false
   connection: local
+  become: yes
+  become_user: root
+  become_method: su
+  vars:
+    myfile: /root/.ssh/authorized_keys
   tasks:
     # - action: pin
-  - name: Check passwordless SSH on all scale inventory hosts
-    shell: ssh {{ ansible_ssh_common_args }} -i /tmp/.schematics/IBM/tf_data_path/id_rsa {{ inventory_hostname }} "echo PASSWDLESS_SSH_ENABLED"
-    register: result
-    until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
-    # retries: 60
-    # delay: 10
-  - debug:
-      msg: "{{ result }}"
-      #until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
-      #retries: 30
-      #delay: 10
-  # - name: Multi Install
-  #   become: true
-  #   become_user: root
-  #   yum:
-  #     name: ['git', 'wget']
-  #     state: present
-  #     update_cache: yes
+  - name: check if a file exists
+    ansible.builtin.stat:
+      path: "{{ myfile }}"
+    register: file_data
+  - name: report file exists
+    ansible.builtin.debug:
+      msg: "The file {{ myfile }} exist"
+    when: file_data.stat.exists
+  - name: report file not exists
+    ansible.builtin.debug:
+      msg: "The file {{ myfile }} doesn't exist"
+    when: not file_data.stat.exists
+
+
+  # - name: Check passwordless SSH on all scale inventory hosts
+  #   shell: ssh {{ ansible_ssh_common_args }} -i /tmp/.schematics/IBM/tf_data_path/id_rsa {{ inventory_hostname }} "echo PASSWDLESS_SSH_ENABLED"
+  #   register: result
+  #   until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
+  #   # retries: 60
+  #   # delay: 10
+  # - debug:
+  #     msg: "{{ result }}"
+  #     #until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
+  #     #retries: 30
+  #     #delay: 10
+  # # - name: Multi Install
+  # #   become: true
+  # #   become_user: root
+  # #   yum:
+  # #     name: ['git', 'wget']
+  # #     state: present
+  # #     update_cache: yes
