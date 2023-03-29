@@ -2,9 +2,9 @@
   hosts: scale_nodes
   any_errors_fatal: true
   gather_facts: false
-  connection: local
+  #connection: local
   vars:
-    myfile: /etc/ssh
+    myfile: /root/.ssh
     #- action: pin
   tasks:
   - command: "ls {{myfile}}"
