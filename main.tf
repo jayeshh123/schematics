@@ -422,7 +422,7 @@ resource "null_resource" "perform_scale_deployment" {
   # }
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "ansible-playbook -f 32 -i ${local.compute_inventory_path} ${path.module}/playbook.yml --become-user root --ssh-common-args '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand=\"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p root@52.118.82.143 -i /tmp/.schematics/IBM/tf_data_path/id_rsa\"'"
+    command     = "ansible-playbook -f 32 -i ${local.compute_inventory_path} ${path.module}/playbook.yml --private-key /tmp/.schematics/IBM/tf_data_path/id_rsa"
   }
   depends_on = [null_resource.run_ssh_from_local]# null_resource.run_command_on_remote]
   triggers = {

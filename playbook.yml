@@ -3,9 +3,6 @@
   any_errors_fatal: true
   gather_facts: false
   connection: local
-  become: yes
-  become_user: appuser
-  become_method: su
   vars:
     myfile: /root/.ssh/authorized_keys
   tasks:
