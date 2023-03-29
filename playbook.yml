@@ -9,6 +9,10 @@
   tasks:
   - command: "ls {{myfile}}"
     register: dir_out
+    until: "dir_out is not failed"
+    retries: 3
+    delay: 3
+
   - debug: var={{item}}
     with_items: dir_out.stdout_lines
 
