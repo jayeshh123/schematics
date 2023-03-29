@@ -11,6 +11,7 @@ echo "${target_ip}" >> ${ini_file}
 proxy_command="ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand=\"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p root@${bastion_ip} -i /tmp/.schematics/IBM/tf_data_path/id_rsa\"'"
 
 echo "[scale_nodes:vars]" >> ${ini_file}
+echo "remote_tmp = /tmp/ansible-$USER"
 echo ${proxy_command} >> ${ini_file}
 
 echo "inventory file writte"
