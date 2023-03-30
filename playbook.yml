@@ -3,8 +3,8 @@
   any_errors_fatal: true
   gather_facts: false
   connection: local
-  vars:
-    myfile: /root/.ssh
+  # vars:
+  #   myfile: /root/.ssh
     # - action: pin
   tasks:
   # - command: "ls {{myfile}}"
@@ -21,7 +21,8 @@
 
 
   - name: Check passwordless SSH on all scale inventory hosts
-    shell: ssh {{ ansible_ssh_common_args }} -o PubkeyAuthentication=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /tmp/.schematics/IBM/tf_data_path/id_rsa root@{{ inventory_hostname }} "echo PASSWDLESS_SSH_ENABLED"
+    #shell: ssh {{ ansible_ssh_common_args }} -o PubkeyAuthentication=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /tmp/.schematics/IBM/tf_data_path/id_rsa root@{{ inventory_hostname }} "echo PASSWDLESS_SSH_ENABLED"
+    shell: ssh {{ ansible_ssh_common_args }} -i /tmp/.schematics/IBM/tf_data_path/id_rsa root@{{ inventory_hostname }} "echo PASSWDLESS_SSH_ENABLED"
     register: result
     until: result.stdout.find("PASSWDLESS_SSH_ENABLED") != -1
     # retries: 60
